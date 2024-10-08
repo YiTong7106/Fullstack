@@ -1,0 +1,13 @@
+<h2>Drivers List</h2>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Licence</th>
+    <th>Department</th>
+  </tr>
+  <tr *ngFor="let driver of drivers">
+    <td>{{ driver.name }}</td>
+    <td>{{ driver.licence }}</td>
+    <td>{{ driver.department }}</td>
+  </tr>
+</table>
