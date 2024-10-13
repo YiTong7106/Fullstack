@@ -1,1 +1,34 @@
-<p>list-packages works!</p>
+<div class="container mt-5">
+  <h2 class="text-center mb-4">List of Packages</h2>
+
+  <!-- No packages available message -->
+  <div *ngIf="packages.length === 0" class="alert alert-warning">
+    <h4 class="text-center">No packages available at the moment.</h4>
+  </div>
+
+  <!-- Packages table -->
+  <div *ngIf="packages.length > 0" class="table-responsive">
+    <table class="table table-bordered table-hover">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Package Title</th>
+          <th scope="col">Package Weight (grams)</th>
+          <th scope="col">Package Destination</th>
+          <th scope="col">Driver</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pkg of packages">
+          <td>{{ pkg.package_title }}</td>
+          <td>{{ pkg.package_weight | kgToGrams }}</td>
+          <td>{{ pkg.package_destination }}</td>
+          <td>{{ pkg.driver_id?.driver_name || 'Unassigned' }}</td>
+          <td>
+            <button (click)="deletePackage(pkg._id)" class="btn btn-danger btn-sm">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

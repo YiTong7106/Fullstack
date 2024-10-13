@@ -1,1 +1,68 @@
-<p>add-package works!</p>
+<h2 class="text-center my-4">Add Package</h2>
+
+<div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+  {{ errorMessage }}
+</div>
+
+<form (ngSubmit)="addPackage()" class="container">
+  <div class="mb-3">
+    <label for="package_title" class="form-label">Title:</label>
+    <input
+      class="form-control"
+      [(ngModel)]="package.package_title"
+      name="package_title"
+      id="package_title"
+      required
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="package_weight" class="form-label">Weight (kg):</label>
+    <input
+      class="form-control"
+      [(ngModel)]="package.package_weight"
+      name="package_weight"
+      id="package_weight"
+      type="number"
+      required
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="package_destination" class="form-label">Destination:</label>
+    <input
+      class="form-control"
+      [(ngModel)]="package.package_destination"
+      name="package_destination"
+      id="package_destination"
+      required
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="description" class="form-label">Description:</label>
+    <input
+      class="form-control"
+      [(ngModel)]="package.description"
+      name="description"
+      id="description"
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="driver_id" class="form-label">Assign Driver:</label>
+    <select
+      class="form-select"
+      [(ngModel)]="package.driver_id"
+      name="driver_id"
+      id="driver_id"
+      required
+    >
+      <option *ngFor="let driver of drivers" [value]="driver._id">
+        {{ driver.driver_name }}
+      </option>
+    </select>
+  </div>
+
+  <button type="submit" class="btn btn-primary w-100">Add Package</button>
+</form>

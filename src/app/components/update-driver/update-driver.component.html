@@ -1,1 +1,52 @@
-<p>update-driver works!</p>
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Update Driver</h2>
+
+  <form (ngSubmit)="updateDriver()" class="form-group shadow p-4 bg-white rounded">
+    <!-- Select Driver to Update -->
+    <div class="mb-3">
+      <label for="selected_driver" class="form-label">Select Driver:</label>
+      <select 
+        [(ngModel)]="selectedDriverId" 
+        name="selected_driver" 
+        id="selected_driver" 
+        (change)="loadDriverDetails()" 
+        class="form-select" 
+        required
+      >
+        <option *ngFor="let driver of drivers" [value]="driver._id">{{ driver.driver_name }}</option>
+      </select>
+    </div>
+    
+    <!-- Driver Licence -->
+    <div class="mb-3">
+      <label for="driver_licence" class="form-label">Licence:</label>
+      <input 
+        [(ngModel)]="driver.driver_licence" 
+        name="driver_licence" 
+        id="driver_licence" 
+        class="form-control" 
+        placeholder="Enter driver licence" 
+        required
+      >
+    </div>
+
+    <!-- Driver Department -->
+    <div class="mb-3">
+      <label for="driver_department" class="form-label">Department:</label>
+      <select 
+        [(ngModel)]="driver.driver_department" 
+        name="driver_department" 
+        id="driver_department" 
+        class="form-select" 
+        required
+      >
+        <option [value]="'Food'">Food</option>
+        <option [value]="'Furniture'">Furniture</option>
+        <option [value]="'Electronic'">Electronic</option>
+      </select>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-primary w-100">Update Driver</button>
+  </form>
+</div>

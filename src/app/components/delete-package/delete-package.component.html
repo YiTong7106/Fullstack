@@ -1,1 +1,12 @@
-<p>delete-package works!</p>
+<h2>Delete Package</h2>
+
+<form (ngSubmit)="deletePackage()">
+  <div>
+    <label for="package_id">Package ID:</label>
+    <input [(ngModel)]="package_id" name="package_id" required />
+  </div>
+  <button type="submit">Delete Package</button>
+</form>
+
+<div *ngIf="errorMessage">{{ errorMessage }}</div>
+<div *ngIf="successMessage">{{ successMessage }}</div>

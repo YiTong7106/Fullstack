@@ -1,1 +1,37 @@
-<p>update-package works!</p>
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Update Package</h2>
+
+  <form (ngSubmit)="updatePackage()" class="shadow p-4 bg-white rounded">
+    
+    <!-- Select Package to Update -->
+    <div class="mb-3">
+      <label for="selected_package" class="form-label">Select Package:</label>
+      <select 
+        [(ngModel)]="selectedPackageId" 
+        name="selected_package" 
+        id="selected_package" 
+        class="form-select" 
+        (change)="loadPackageDetails()" 
+        required
+      >
+        <option *ngFor="let pkg of packages" [value]="pkg._id">{{ pkg.package_title }}</option>
+      </select>
+    </div>
+
+    <!-- Package Destination -->
+    <div class="mb-3">
+      <label for="package_destination" class="form-label">Destination:</label>
+      <input 
+        [(ngModel)]="package.package_destination" 
+        name="package_destination" 
+        id="package_destination" 
+        class="form-control" 
+        placeholder="Enter package destination" 
+        required
+      >
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-primary w-100">Update Package</button>
+  </form>
+</div>

@@ -3,17 +3,16 @@
  * @const
  */
 const express = require('express');
+
 /**
  * express router middleware
  * @const
  */
-
 const router = express.Router();
 const Driver = require('../models/driver');
 const Package = require('../models/package');
-const db = require('../app');
 const incrementCounter = require('../helpers/incrementCounter');
-const ensureAuthenticated = require('../middlewares/authMiddleware');
+const db = require('../app');
 /**
  * @route POST /v1/drivers/add
  * @middleware ensureAuthenticated
@@ -22,26 +21,32 @@ const ensureAuthenticated = require('../middlewares/authMiddleware');
  * @param {Response} res - Express response object, returns the newly created driver's ID.
  * @async
  */
-router.post('v1/drivers/add',ensureAuthenticated, async (req, res) => {
-    let tDriver_id = 'D32-' + (Math.round(Math.random() * 89) + 10) + '-' + String.fromCharCode(
-        Math.floor(Math.random() * 26) + 65,
-        Math.floor(Math.random() * 26) + 65
-    );
+router.post('/api/v1/drivers/add', async (req, res) => {
+    try {
+        let tDriver_id = 'D32-' + (Math.round(Math.random() * 89) + 10) + '-' + String.fromCharCode(
+            Math.floor(Math.random() * 26) + 65,
+            Math.floor(Math.random() * 26) + 65
+        );
 
-    let newDriver = new Driver({
-        driver_id: tDriver_id,
-        driver_name: req.body.driver_name,
-        driver_department: req.body.driver_department,
-        driver_licence: req.body.driver_licence,
-        driver_isActive: req.body.driver_isActive
-    });
-    await incrementCounter('create');
-    await newDriver.save();
-    res.json({
-        id: newDriver._id,
-        driver_id: tDriver_id
-    });
+        let newDriver = new Driver({
+            driver_id: tDriver_id,
+            driver_name: req.body.driver_name,
+            driver_department: req.body.driver_department,
+            driver_licence: req.body.driver_licence,
+            driver_isActive: req.body.driver_isActive
+        });
+
+        await incrementCounter('create');
+        await newDriver.save();
+        res.json({ id: newDriver._id, driver_id: tDriver_id });
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: 'Validation failed', error: error.message });
+        }
+        res.status(500).json({ error: error.message });
+    }
 });
+
 /**
  * @route GET /v1/drivers
  * @middleware ensureAuthenticated
@@ -50,10 +55,14 @@ router.post('v1/drivers/add',ensureAuthenticated, async (req, res) => {
  * @param {Response} res - Express response object, returns the list of drivers.
  * @async
  */
-router.get('/v1/drivers',ensureAuthenticated, async (req, res) => {
-    const drivers = await Driver.find().populate('assigned_packages');
-    await incrementCounter('retrieve');
-    res.json(drivers);
+router.get('/api/v1/drivers', async (req, res) => {
+    try {
+        const drivers = await Driver.find().populate('assigned_packages');
+        await incrementCounter('retrieve');
+        res.json(drivers);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 /**
@@ -64,12 +73,18 @@ router.get('/v1/drivers',ensureAuthenticated, async (req, res) => {
  * @param {Response} res - Express response object, returns the deletion result.
  * @async
  */
-router.delete('/v1/drivers/:id', ensureAuthenticated,async (req, res) => {
-    const driver = await Driver.findById(req.params.id).populate('assigned_packages');
-    await Package.deleteMany({ _id: { $in: driver.assigned_packages } });
-    const deletedDriver = await Driver.deleteOne({ _id: req.params.id });
-    await incrementCounter('delete');
-    res.json({ acknowledged: true, deletedCount: deletedDriver.deletedCount });
+router.delete('/api/v1/drivers/:id', async (req, res) => {
+    try {
+        const driver = await Driver.findById(req.params.id).populate('assigned_packages');
+        if (!driver) return res.status(404).json({ error: 'Driver not found' });
+
+        await Package.deleteMany({ _id: { $in: driver.assigned_packages } });
+        const deletedDriver = await Driver.deleteOne({ _id: req.params.id });
+        await incrementCounter('delete');
+        res.json({ acknowledged: true, deletedCount: deletedDriver.deletedCount });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 /**
@@ -80,21 +95,21 @@ router.delete('/v1/drivers/:id', ensureAuthenticated,async (req, res) => {
  * @param {Response} res - Express response object, returns the update status.
  * @async
  */
-router.put('/v1/drivers/:id',ensureAuthenticated, async (req, res) => {
+router.put('/api/v1/drivers/:id', async (req, res) => {
+    try {
+        const updatedDriver = await Driver.findByIdAndUpdate(
+            req.params.id,
+            { driver_licence: req.body.driver_licence, driver_department: req.body.driver_department },
+            { new: true }
+        );
+        if (!updatedDriver) return res.status(404).json({ error: 'Driver not found' });
 
-    const updatedDriver = await Driver.findByIdAndUpdate(
-        req.body.id,
-        { driver_licence: req.body.driver_licence, driver_department: req.body.driver_department },
-        { new: true }
-    );
-
-    if (!updatedDriver) {
-        return res.status(404).json({ status: 'ID not found' });
+        await incrementCounter('update');
+        res.json({ status: 'Driver updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
-    await incrementCounter('update');
-    res.json({ status: 'Driver updated successfully' });
 });
-
 
 /**
  * @route POST /v1/packages/add
@@ -104,30 +119,39 @@ router.put('/v1/drivers/:id',ensureAuthenticated, async (req, res) => {
  * @param {Response} res - Express response object, returns the newly created package's ID.
  * @async
  */
-router.post('/v1/packages/add', ensureAuthenticated,async (req, res) => {
-    // Generate package_id
-    let tPackage_id = 'P' + String.fromCharCode(
-        Math.floor(Math.random() * 26) + 65,
-        Math.floor(Math.random() * 26) + 65
-    ) + '-YT-' + (Math.round(Math.random() * (999 - 100)) + 100);
-    if (!await Driver.findById({ _id: req.body.driver_id })) {
-        return res.status(404).json({ status: 'Driver not found' });
-    };
-    const newPackage = new Package({
-        package_id: tPackage_id,
-        package_title: req.body.package_title,
-        package_weight: req.body.package_weight,
-        package_destination: req.body.package_destination,
-        isAllocated: req.body.isAllocated,
-        driver_id: req.body.driver_id
-    });
+router.post('/api/v1/packages/add', async (req, res) => {
+    try {
+        // Generate package_id
+        let tPackage_id = 'P' + String.fromCharCode(
+            Math.floor(Math.random() * 26) + 65,
+            Math.floor(Math.random() * 26) + 65
+        ) + '-YT-' + (Math.round(Math.random() * (999 - 100)) + 100);
 
-    await Driver.findByIdAndUpdate({ _id: newPackage.driver_id }, { $push: { assigned_packages: newPackage._id } }, { new: true });
-   
-    const savedPackage = await newPackage.save();
-    await incrementCounter('create');
-    res.json({ id: savedPackage._id, package_id: savedPackage.package_id });
+        const driver = await Driver.findById(req.body.driver_id);
+        if (!driver) {
+            return res.status(404).json({ status: 'Driver not found' });
+        }
+
+        const newPackage = new Package({
+            package_id: tPackage_id,
+            package_title: req.body.package_title,
+            package_weight: req.body.package_weight,
+            package_destination: req.body.package_destination,
+            isAllocated: req.body.isAllocated,
+            driver_id: req.body.driver_id
+        });
+
+        await Driver.findByIdAndUpdate({ _id: newPackage.driver_id }, { $push: { assigned_packages: newPackage._id } }, { new: true });
+        const savedPackage = await newPackage.save();
+        await incrementCounter('create');
+        res.json({ id: savedPackage._id, package_id: savedPackage.package_id });
+    } catch (error) {
+        console.error('Error adding package:', error.message);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
 });
+
+
 /**
  * @route GET /v1/packages
  * @middleware ensureAuthenticated
@@ -136,11 +160,14 @@ router.post('/v1/packages/add', ensureAuthenticated,async (req, res) => {
  * @param {Response} res - Express response object, returns the list of packages.
  * @async
  */
-
-router.get('/v1/packages', ensureAuthenticated,async (req, res) => {
-    const packages = await Package.find().populate('driver_id');
-    await incrementCounter('retrieve');
-    res.json(packages);
+router.get('/api/v1/packages', async (req, res) => {
+    try {
+        const packages = await Package.find().populate('driver_id');
+        await incrementCounter('retrieve');
+        res.json(packages);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 /**
@@ -151,15 +178,20 @@ router.get('/v1/packages', ensureAuthenticated,async (req, res) => {
  * @param {Response} res - Express response object, returns the deletion result.
  * @async
  */
-router.delete('/v1/packages/:id', ensureAuthenticated,async (req, res) => {
-    await Driver.updateMany(
-        { assigned_packages: req.params.id },
-        { $pull: { assigned_packages: req.params.id } }
-    );
-    const deletedPackage = await Package.deleteOne({ _id: req.params.id });
-    await incrementCounter('delete');
-    res.json({ acknowledged: true, deletedCount: deletedPackage.deletedCount });
+router.delete('/api/v1/packages/:id', async (req, res) => {
+    try {
+        await Driver.updateMany(
+            { assigned_packages: req.params.id },
+            { $pull: { assigned_packages: req.params.id } }
+        );
+        const deletedPackage = await Package.deleteOne({ _id: req.params.id });
+        await incrementCounter('delete');
+        res.json({ acknowledged: true, deletedCount: deletedPackage.deletedCount });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
+
 /**
  * @route PUT /v1/packages/:id
  * @middleware ensureAuthenticated
@@ -168,70 +200,35 @@ router.delete('/v1/packages/:id', ensureAuthenticated,async (req, res) => {
  * @param {Response} res - Express response object, returns the update status.
  * @async
  */
-router.put('/v1/packages/:id', ensureAuthenticated,async (req, res) => {
-    await Package.findByIdAndUpdate(
-        req.params.id,
-        { package_destination: req.body.package_destination },
-        { new: true }
-    );
-    await incrementCounter('update');
-    res.json({ status: 'updated successfully' });
-});
-/**
- * @route POST /v1/signup
- * @desc Registers a new user in the system.
- * @param {Request} req - Express request object containing username and password in the body.
- * @param {Response} res - Express response object, returns the registration status.
- * @async
- */
-router.post('/v1/signup', async (req, res) => {
-    const { username, password, confirm_password } = req.body;
+router.put('/api/v1/packages/:id', async (req, res) => {
+    try {
+        const updatedPackage = await Package.findByIdAndUpdate(
+            req.params.id,
+            { package_destination: req.body.package_destination },
+            { new: true }
+        );
+        if (!updatedPackage) return res.status(404).json({ error: 'Package not found' });
 
-    if (username.length < 6 || password.length < 5 || password.length > 10 || password !== confirm_password) {
-        return res.json({ status: 'Invalid data' });
+        await incrementCounter('update');
+        res.json({ status: 'Package updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
-        const userRef = db.collection('users').doc(username);
-        const doc = await userRef.get();
-
-        if (doc.exists) {
-            return res.json({ status: 'User already exists' });
-        }
-
-        await userRef.set({
-            username: username,
-            password: password
-        });
-        await incrementCounter('create');
-
-        res.json({ status: 'Signup successfully' });
 });
-/**
- * @route POST /v1/login
- * @desc Authenticates a user and initiates a session.
- * @param {Request} req - Express request object containing username and password in the body.
- * @param {Response} res - Express response object, returns the login status.
- * @async
- */
-router.post('/v1/login', async (req, res) => {
-    const { username, password } = req.body;
 
-
-        const userRef = db.collection('users').doc(username);
-        const doc = await userRef.get();
-        await incrementCounter('retrieve');
+router.get('/api/v1/stats', async (req, res) => {
+    try {
+        const docRef = db.collection('stats').doc('crudCounters');
+        const doc = await docRef.get();
         if (!doc.exists) {
-            return res.json({ status: 'User not found' });
+            return res.status(404).json({ error: 'Stats not found' });
         }
-
-        const user = doc.data();
-       
-        if (password != user.password) {
-            return res.json({ status: 'Incorrect password' });
-        }
-       
-        req.session.user = user;
-
-        res.status(200).json({ status: 'Login successfully' });
+        const data = doc.data();
+        res.json({ stats: data });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Server Error' });
+    }
 });
 
 module.exports = router;
