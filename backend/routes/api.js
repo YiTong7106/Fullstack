@@ -120,6 +120,7 @@ router.put('/api/v1/drivers/:id', async (req, res) => {
  * @async
  */
 router.post('/api/v1/packages/add', async (req, res) => {
+    console.log(req.body);
     try {
         // Generate package_id
         let tPackage_id = 'P' + String.fromCharCode(
@@ -137,10 +138,11 @@ router.post('/api/v1/packages/add', async (req, res) => {
             package_title: req.body.package_title,
             package_weight: req.body.package_weight,
             package_destination: req.body.package_destination,
+            package_description: req.body.package_description,
             isAllocated: req.body.isAllocated,
             driver_id: req.body.driver_id
         });
-
+        console.log(newPackage);
         await Driver.findByIdAndUpdate({ _id: newPackage.driver_id }, { $push: { assigned_packages: newPackage._id } }, { new: true });
         const savedPackage = await newPackage.save();
         await incrementCounter('create');
@@ -229,6 +231,63 @@ router.get('/api/v1/stats', async (req, res) => {
         console.log(error);
         res.status(500).json({ error: 'Server Error' });
     }
+});
+
+/**
+ * @route POST /v1/signup
+ * @desc Registers a new user in the system.
+ * @param {Request} req - Express request object containing username and password in the body.
+ * @param {Response} res - Express response object, returns the registration status.
+ * @async
+ */
+router.post('/api/v1/signup', async (req, res) => {
+    const { username, password, confirm_password } = req.body;
+
+    if (username.length < 6 || password.length < 5 || password.length > 10 || password !== confirm_password) {
+        return res.json({ status: 'Invalid data' });
+    }
+        const userRef = db.collection('users').doc(username);
+        const doc = await userRef.get();
+
+        if (doc.exists) {
+            return res.json({ status: 'User already exists' });
+        }
+
+        await userRef.set({
+            username: username,
+            password: password
+        });
+        await incrementCounter('create');
+
+        res.json({ status: 'Signup successfully' });
+});
+/**
+ * @route POST /v1/login
+ * @desc Authenticates a user and initiates a session.
+ * @param {Request} req - Express request object containing username and password in the body.
+ * @param {Response} res - Express response object, returns the login status.
+ * @async
+ */
+router.post('/api/v1/login', async (req, res) => {
+    const { username, password } = req.body;
+
+
+        const userRef = db.collection('users').doc(username);
+        const doc = await userRef.get();
+        await incrementCounter('retrieve');
+        if (!doc.exists) {
+            return res.json({ status: 'User not found' });
+        }
+
+        const user = doc.data();
+       
+        if (password != user.password) {
+            return res.json({ status: 'Incorrect password' });
+        }
+       
+        req.session.user = user;
+
+        res.status(200).json({ status: 'Login successfully' });
 });
 
 module.exports = router;

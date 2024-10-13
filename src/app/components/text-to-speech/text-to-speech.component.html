@@ -1,0 +1,30 @@
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Drivers List - Text to Speech</h2>
+  
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Licence</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let driver of drivers">
+          <td>{{ driver.driver_name }}</td>
+          <td>{{ driver.driver_licence }}</td>
+          <td>
+            <button class="btn btn-info" (click)="convertToSpeech(driver)">
+              Convert to Speech
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <div *ngIf="audioUrl" class="mt-4">
+      <h3>Generated Audio</h3>
+      <audio [src]="audioUrl" controls></audio>
+    </div>
+  </div>
+  

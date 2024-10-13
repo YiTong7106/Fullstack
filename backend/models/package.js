@@ -44,7 +44,7 @@ const packageSchema = new Schema({
         required: true,
         match: /^[a-zA-Z0-9]{5,15}$/
     },
-    description: {
+    package_description: {
         type: String,
         maxlength: 30
     },

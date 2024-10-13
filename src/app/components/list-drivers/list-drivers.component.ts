@@ -1,3 +1,4 @@
+// list-drivers.component.ts
 import { Component, OnInit } from '@angular/core';
 import { DriverService } from '../../services/driver/driver.service';
 import { Router } from '@angular/router';
@@ -14,8 +15,13 @@ import { UppercasePipe } from '../../pipes/uppercase.pipe';
 export class ListDriversComponent implements OnInit {
 
   drivers: any[] = [];
+  selectedDriverPackages: any[] = [];
+  selectedDriverId: string | null = null;
 
-  constructor(private driverService: DriverService, private router: Router) { }
+  constructor(
+    private driverService: DriverService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.loadDrivers();
@@ -35,5 +41,19 @@ export class ListDriversComponent implements OnInit {
       });
     }
   }
-  
+
+  togglePackages(driverId: string): void {
+    if (this.selectedDriverId === driverId) {
+      this.selectedDriverPackages = [];
+      this.selectedDriverId = null;
+    } else {
+      const selectedDriver = this.drivers.find(driver => driver._id === driverId);
+      if (selectedDriver && selectedDriver.assigned_packages) {
+        this.selectedDriverPackages = selectedDriver.assigned_packages;
+        this.selectedDriverId = driverId;
+      } else {
+        this.selectedDriverPackages = [];
+      }
+    }
+  }
 }

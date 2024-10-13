@@ -1,34 +1,39 @@
 <div class="container mt-5">
-  <h2 class="text-center mb-4">List of Packages</h2>
+  <h2 class="text-center mb-4">Packages List</h2>
 
-  <!-- No packages available message -->
-  <div *ngIf="packages.length === 0" class="alert alert-warning">
-    <h4 class="text-center">No packages available at the moment.</h4>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Weight (kg)</th>
+        <th>Destination</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let pkg of packages">
+        <td>{{ pkg.package_title }}</td>
+        <td>{{ pkg.package_weight }}</td>
+        <td>{{ pkg.package_destination }}</td>
+        <td>
+          <button class="btn btn-info" (click)="toggleDriver(pkg._id)">Show Driver</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="selectedPackageDriver" class="mt-4">
+    <h3>Assigned Driver</h3>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong>Name:</strong> {{ selectedPackageDriver.driver_name }} <br>
+        <strong>Licence:</strong> {{ selectedPackageDriver.driver_licence }} <br>
+        <strong>Department:</strong> {{ selectedPackageDriver.driver_department }} <br>
+        <strong>Active:</strong> {{ selectedPackageDriver.driver_isActive ? 'Yes' : 'No' }}
+      </li>
+    </ul>
   </div>
-
-  <!-- Packages table -->
-  <div *ngIf="packages.length > 0" class="table-responsive">
-    <table class="table table-bordered table-hover">
-      <thead class="thead-dark">
-        <tr>
-          <th scope="col">Package Title</th>
-          <th scope="col">Package Weight (grams)</th>
-          <th scope="col">Package Destination</th>
-          <th scope="col">Driver</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let pkg of packages">
-          <td>{{ pkg.package_title }}</td>
-          <td>{{ pkg.package_weight | kgToGrams }}</td>
-          <td>{{ pkg.package_destination }}</td>
-          <td>{{ pkg.driver_id?.driver_name || 'Unassigned' }}</td>
-          <td>
-            <button (click)="deletePackage(pkg._id)" class="btn btn-danger btn-sm">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div *ngIf="!selectedPackageDriver && selectedPackageId" class="mt-4">
+    <p>No Driver Assigned</p>
   </div>
 </div>

@@ -23,9 +23,6 @@ export class StatsComponent implements OnInit {
       next: (data) => {
         this.stats = data.stats;
       },
-      error: (error) => {
-        this.errorMessage = `Error: ${error.message}`;
-      }
     });
   }
 }

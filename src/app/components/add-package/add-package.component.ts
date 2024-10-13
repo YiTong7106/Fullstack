@@ -22,7 +22,7 @@ export class AddPackageComponent implements OnInit {
     package_title: '',
     package_weight: 0,
     package_destination: '',
-    description: '',
+    package_description: '',
     driver_id: '',
     isAllocated: false
   };

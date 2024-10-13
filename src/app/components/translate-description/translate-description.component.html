@@ -1,0 +1,37 @@
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Translate Package Descriptions</h2>
+  
+    <div class="mb-4">
+      <label for="language">Select Language:</label>
+      <select [(ngModel)]="selectedLanguage" id="language" class="form-select">
+        <option *ngFor="let lang of languages" [value]="lang">{{ lang }}</option>
+      </select>
+    </div>
+  
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Package Title</th>
+          <th>Package Description</th>
+          <th>Translate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pkg of packages">
+          <td>{{ pkg.package_title }}</td>
+          <td>{{ pkg.package_description }}</td>
+          <td>
+            <button class="btn btn-primary" (click)="translateDescription(pkg)">
+              Translate
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="translationResult" class="mt-4">
+      <h3>Translation Result:</h3>
+      <p>{{ translationResult }}</p>
+    </div>
+  </div>
+  

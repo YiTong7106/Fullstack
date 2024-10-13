@@ -1,12 +1,39 @@
-<h2>Delete Package</h2>
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Packages List</h2>
 
-<form (ngSubmit)="deletePackage()">
-  <div>
-    <label for="package_id">Package ID:</label>
-    <input [(ngModel)]="package_id" name="package_id" required />
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Weight (kg)</th>
+        <th>Destination</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let pkg of packages">
+        <td>{{ pkg.package_title }}</td>
+        <td>{{ pkg.package_weight }}</td>
+        <td>{{ pkg.package_destination }}</td>
+        <td>
+          <button class="btn btn-info" (click)="toggleDriver(pkg._id)">Show Driver</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="selectedPackageDriver" class="mt-4">
+    <h3>Assigned Driver</h3>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong>Name:</strong> {{ selectedPackageDriver.driver_name }} <br>
+        <strong>Licence:</strong> {{ selectedPackageDriver.driver_licence }} <br>
+        <strong>Department:</strong> {{ selectedPackageDriver.driver_department }} <br>
+        <strong>Active:</strong> {{ selectedPackageDriver.driver_isActive ? 'Yes' : 'No' }}
+      </li>
+    </ul>
   </div>
-  <button type="submit">Delete Package</button>
-</form>
-
-<div *ngIf="errorMessage">{{ errorMessage }}</div>
-<div *ngIf="successMessage">{{ successMessage }}</div>
+  <div *ngIf="!selectedPackageDriver && selectedPackageId" class="mt-4">
+    <p>No Driver Assigned</p>
+  </div>
+</div>

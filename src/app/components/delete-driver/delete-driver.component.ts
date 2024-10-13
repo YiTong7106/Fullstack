@@ -1,26 +1,58 @@
-import { Component } from '@angular/core';
+// delete-drivers.component.ts
+import { Component, OnInit } from '@angular/core';
 import { DriverService } from '../../services/driver/driver.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { UppercasePipe } from '../../pipes/uppercase.pipe';
 
 @Component({
-  selector: 'app-delete-driver',
+  selector: 'app-delete-drivers',
   templateUrl: './delete-driver.component.html',
-  styleUrls: ['./delete-driver.component.css']
+  styleUrls: ['./delete-driver.component.css'],
+  standalone: true,
+  imports: [CommonModule, UppercasePipe]
 })
-export class DeleteDriverComponent {
+export class DeleteDriversComponent implements OnInit {
+
+  drivers: any[] = [];
+  selectedDriverPackages: any[] = [];
+  selectedDriverId: string | null = null;
 
   constructor(
     private driverService: DriverService,
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
+  ) { }
 
-  deleteDriver(): void {
-    const driverId = this.route.snapshot.paramMap.get('id');
-    if (driverId && confirm('Are you sure you want to delete this driver?')) {
-      this.driverService.deleteDriver(driverId).subscribe(() => {
-        this.router.navigate(['/list-drivers']);
+  ngOnInit(): void {
+    this.loadDrivers();
+  }
+
+  loadDrivers(): void {
+    this.driverService.getDrivers().subscribe(data => {
+      this.drivers = data;
+    });
+  }
+
+  deleteDriver(id: string): void {
+    if (confirm('Are you sure you want to delete this driver?')) {
+      this.driverService.deleteDriver(id).subscribe({
+        next: () => (alert('Driver deleted successfully!'), this.loadDrivers()),
+        error: (error) => alert('Error deleting driver: ' + error)
       });
+    }
+  }
+
+  togglePackages(driverId: string): void {
+    if (this.selectedDriverId === driverId) {
+      this.selectedDriverPackages = [];
+      this.selectedDriverId = null;
+    } else {
+      const selectedDriver = this.drivers.find(driver => driver._id === driverId);
+      if (selectedDriver && selectedDriver.assigned_packages) {
+        this.selectedDriverPackages = selectedDriver.assigned_packages;
+        this.selectedDriverId = driverId;
+      } else {
+        this.selectedDriverPackages = [];
+      }
     }
   }
 }
