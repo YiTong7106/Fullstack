@@ -53,6 +53,8 @@ const url = "mongodb://127.0.0.1:27017/week9"
 const fs = require('fs');
 const util = require('util');
 const client = new textToSpeech.TextToSpeechClient();
+const { Client } = require("@googlemaps/google-maps-services-js");
+const googleMapsClient = new Client({});
 io.on('connection', (socket) => {
     console.log('New client connected');
 
@@ -87,7 +89,30 @@ io.on('connection', (socket) => {
             console.log('Text-to-speech error:', error);
         }
     });
+    socket.on('calculateDistance', async (data) => {
+        const { destination } = data;
 
+        try {
+            const response = await googleMapsClient.distancematrix({
+                params: {
+                    origins: ["Melbourne, Australia"],
+                    destinations: [destination],
+                    key: "AIzaSyA63D1Ky9-f_6b1nvvt8wXj6DU2907ulBE",
+                },
+            });
+
+            const element = response.data.rows[0].elements[0];
+            if (element.status === 'OK') {
+                const distance = element.distance.text;
+                socket.emit('distanceResult', { distance });
+            } else {
+                socket.emit('error', { message: 'Unable to calculate distance' });
+            }
+        } catch (error) {
+            socket.emit('error', { message: 'Distance calculation failed' });
+            console.error('Distance calculation failed:', error);
+        }
+    });
     socket.on('disconnect', () => {
         console.log('Client disconnected');
     });

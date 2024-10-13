@@ -12,12 +12,13 @@ import { DeletePackagesComponent } from './components/delete-package/delete-pack
 
 import { SignupComponent } from './components/signup/signup.component';
 import { LoginComponent } from './components/login/login.component';
-import { StatsComponent } from './components/stats/stats.component';
+import { StatisticsComponent } from './components/statistics/statistics.component';
 import { InvalidDataComponent } from './components/invalid-data/invalid-data.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { HomeComponent } from './components/home/home.component';
 import { TranslateDescriptionComponent } from './components/translate-description/translate-description.component';
 import { TextToSpeechComponent } from './components/text-to-speech/text-to-speech.component';
+import { GenerativeAIComponent } from './components/generative-ai/generative-ai.component';
 import { AuthGuard } from './guards/auth.guard';
 export const routes: Routes = [
   { path: 'add-driver', component: AddDriverComponent,canActivate: [AuthGuard] },
@@ -30,12 +31,13 @@ export const routes: Routes = [
   { path: 'update-package', component: UpdatePackageComponent ,canActivate: [AuthGuard]},
   { path: 'delete-package', component: DeletePackagesComponent ,canActivate: [AuthGuard]},
 
-  { path: 'texttospeechcomponent', component: TextToSpeechComponent },
-  { path: 'translatedescription', component: TranslateDescriptionComponent },
+  { path: 'generativeAI', component: GenerativeAIComponent ,canActivate: [AuthGuard]},
+  { path: 'texttospeechcomponent', component: TextToSpeechComponent,canActivate: [AuthGuard] },
+  { path: 'translatedescription', component: TranslateDescriptionComponent ,canActivate: [AuthGuard]},
   { path: 'home', component: HomeComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'stats', component: StatsComponent ,canActivate: [AuthGuard]},
+  { path: 'statistics', component: StatisticsComponent ,canActivate: [AuthGuard]},
   { path: 'invalid-data', component: InvalidDataComponent },
   { path: '**', component: PageNotFoundComponent }
 ];

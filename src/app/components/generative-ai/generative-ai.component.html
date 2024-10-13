@@ -1,0 +1,30 @@
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Generative AI: Calculate Distance</h2>
+  
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Weight (kg)</th>
+          <th>Destination</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pkg of packages">
+          <td>{{ pkg.package_title }}</td>
+          <td>{{ pkg.package_weight }}</td>
+          <td>{{ pkg.package_destination }}</td>
+          <td>
+            <button class="btn btn-primary" (click)="calculateDistance(pkg)">Calculate Distance</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <div *ngIf="selectedPackage">
+      <h3>Selected Package: {{ selectedPackage.package_title }}</h3>
+      <p>{{ distanceResult }}</p>
+    </div>
+  </div>
+  

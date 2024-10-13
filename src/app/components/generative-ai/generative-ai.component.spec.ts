@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { StatsComponent } from './stats.component';
+import { GenerativeAiComponent } from './generative-ai.component';
 
-describe('StatsComponent', () => {
-  let component: StatsComponent;
-  let fixture: ComponentFixture<StatsComponent>;
+describe('GenerativeAiComponent', () => {
+  let component: GenerativeAiComponent;
+  let fixture: ComponentFixture<GenerativeAiComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [StatsComponent]
+      imports: [GenerativeAiComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(StatsComponent);
+    fixture = TestBed.createComponent(GenerativeAiComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

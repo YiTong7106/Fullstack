@@ -6,12 +6,12 @@ import { catchError } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
-export class StatsService {
+export class StatisticsService {
   private apiUrl = 'http://localhost:8080/32119887/Yi/api/v1/stats';
 
   constructor(private http: HttpClient) { }
 
-  getStats(): Observable<any> {
+  getStatistics(): Observable<any> {
     return this.http.get<any>(this.apiUrl).pipe(
       catchError(this.handleError)
     );

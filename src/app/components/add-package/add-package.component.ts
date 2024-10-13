@@ -42,7 +42,6 @@ export class AddPackageComponent implements OnInit {
   loadDrivers(): void {
     this.driverService.getDrivers().subscribe(drivers => {
       this.drivers = drivers;
-      console.log('Fetched drivers:', this.drivers);
     });
   }
 

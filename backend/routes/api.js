@@ -107,6 +107,9 @@ router.put('/api/v1/drivers/:id', async (req, res) => {
         await incrementCounter('update');
         res.json({ status: 'Driver updated successfully' });
     } catch (error) {
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: 'Validation failed', error: error.message });
+        }
         res.status(500).json({ error: error.message });
     }
 });
@@ -148,8 +151,10 @@ router.post('/api/v1/packages/add', async (req, res) => {
         await incrementCounter('create');
         res.json({ id: savedPackage._id, package_id: savedPackage.package_id });
     } catch (error) {
-        console.error('Error adding package:', error.message);
-        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: 'Validation failed', error: error.message });
+        }
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -214,6 +219,9 @@ router.put('/api/v1/packages/:id', async (req, res) => {
         await incrementCounter('update');
         res.json({ status: 'Package updated successfully' });
     } catch (error) {
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: 'Validation failed', error: error.message });
+        }
         res.status(500).json({ error: error.message });
     }
 });
